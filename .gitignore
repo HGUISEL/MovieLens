@@ -25,3 +25,4 @@ hs_err_pid*
 /log4j2.xml
 /.classpath
 /.project
+/bin/

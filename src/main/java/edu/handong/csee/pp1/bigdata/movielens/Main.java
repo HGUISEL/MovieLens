@@ -10,6 +10,8 @@ import org.apache.commons.csv.* ;
 public 
 class Main 
 {
+	// PropertiesConfiguration class is from Apache commons configuration which is a helpful external library
+	// when implementing our program to support various configuration features.
 	static PropertiesConfiguration config ;
 	static boolean isToShow = false ;
 	static String configFilePath = "config.properties" ;
@@ -19,26 +21,34 @@ class Main
 	public static 
 	void main (String [] args) 
 	{
+		// Options class is from an external library "Apache commons CLI"
+		// providing convenient APIs for implementing command line based programs.
 		Options options = new Options() ;
 		options.addOption("c", "config", true, "configuration file") ;
 		options.addOption("d", "display", false, "show statistics") ;
 		options.addOption("h", "help", false, "show help message") ;
 
+		// CommandLineParser class is also from an external library "Apache commons CLI"
+		// parsing options from command line when executing a program.
 		CommandLineParser parser = new DefaultParser() ;
-		CommandLine cmd = null ;
+		CommandLine cmd = null ; // An object of the CommandLine class is actually processing command line options.
 		try {
-			cmd = parser.parse(options, args) ;
+			cmd = parser.parse(options, args) ; // parse method parse all options from a command line.
+			
+			// parsed options now will be set to corresponding variables to use them in our code.
 			if (cmd.hasOption("d"))
 				isToShow = true ;
 			if (cmd.hasOption("c"))
 				configFilePath = cmd.getOptionValue("c") ;
+			
+			// 'h' option generates help messages automatically.
 			if (cmd.hasOption("h")) {
 				HelpFormatter formater = new HelpFormatter() ;
 				formater.printHelp("Usage", options) ;
-				System.exit(0) ;
+				System.exit(0) ; // after showing the help message, terminate the program.
 			}
 		}
-		catch (ParseException e) {
+		catch (ParseException e) {	// logics in a 'catch' block handle any error (exception) thrown from 'try' block.
 			System.err.println(e) ;
 			System.exit(1) ;
 		}
@@ -69,6 +79,13 @@ class Main
 		}
 	}
 	
+	
+	/**
+	 * @param fpath
+	 * 
+	 * This is a method to get configuration info from a configuration file (in our program, config.properties)
+	 * 
+	 */
 	public static
 	void config (String fpath) {
 		try {

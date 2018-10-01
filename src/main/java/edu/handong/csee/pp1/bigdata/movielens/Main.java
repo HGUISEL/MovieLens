@@ -112,7 +112,7 @@ class Main
 		TreeMap<Integer, HashSet<Integer>> 
 		q_negative = new TreeMap<Integer, HashSet<Integer>>();
 
-		for (CSVRecord r : CSVFormat.newFormat(',').parse(ftest)) {
+		for (CSVRecord r : CSVFormat.newFormat(',').withFirstRecordAsHeader().parse(ftest)) {
 			Integer user = Integer.parseInt(r.get(0)) ;
 			Integer movie = Integer.parseInt(r.get(1)) ;
 			Double rating = Double.parseDouble(r.get(2)) ;

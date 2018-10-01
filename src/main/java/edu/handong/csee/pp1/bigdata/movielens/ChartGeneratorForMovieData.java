@@ -41,7 +41,7 @@ class ChartGeneratorForMovieData
 
 	public 
 	void load (FileReader f) throws IOException {
-		for (CSVRecord r : CSVFormat.newFormat(',').parse(f)) {
+		for (CSVRecord r : CSVFormat.newFormat(',').withFirstRecordAsHeader().parse(f)) {
 			Integer user   = Integer.parseInt(r.get(0)) ;
 			Integer movie  = Integer.parseInt(r.get(1)) ;
 			Double  rating = Double.parseDouble(r.get(2)) ;

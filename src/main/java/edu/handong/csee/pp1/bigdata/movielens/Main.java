@@ -46,7 +46,7 @@ class Main
 		config(configFilePath) ;
 
 		try {
-			MovieRatingData data = new MovieRatingData(config) ;
+			ChartGeneratorForMovieData data = new ChartGeneratorForMovieData(config) ;
 			FileReader ftrain = new FileReader(config.getString("data.training")) ;
 			FileReader ftest =  new FileReader(config.getString("data.testing")) ;
 

@@ -53,6 +53,7 @@ class Main
 			System.exit(1) ;
 		}
 
+		// load configurations
 		config(configFilePath) ;
 
 		try {
@@ -64,10 +65,12 @@ class Main
 			data.load(ftrain) ;
 			if(DEBUG) System.out.println("Data loading finishes.") ;
 
+			// show charts about the movie data when isToShow is true (default: false)
 			if (isToShow)
 				data.show() ;
 			data.removeOutliers() ;
 
+			// Create an object for a recommender with our configuration
 			Recommender rec = new Recommender(config) ;
 			rec.train(data) ;
 

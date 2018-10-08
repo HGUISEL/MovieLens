@@ -21,15 +21,17 @@ class Main
 	public static 
 	void main (String [] args) 
 	{
-		// Options class is from an external library "Apache commons CLI"
-		// providing convenient APIs for implementing command line based programs.
+		// (1) Prepare for options for a program execution
+		//     Options class is from an external library "Apache commons CLI"
+		//     providing convenient APIs for implementing command line based programs.
 		Options options = new Options() ;
 		options.addOption("c", "config", true, "configuration file") ;
 		options.addOption("d", "display", false, "show statistics") ;
 		options.addOption("h", "help", false, "show help message") ;
 
-		// CommandLineParser class is also from an external library "Apache commons CLI"
-		// parsing options from command line when executing a program.
+		// (2) Prepare for a parser for the options
+		//     CommandLineParser class is also from an external library "Apache commons CLI"
+		//     parsing options from command line when executing a program.
 		CommandLineParser parser = new DefaultParser() ;
 		CommandLine cmd = null ; // An object of the CommandLine class is actually processing command line options.
 		try {
@@ -53,14 +55,18 @@ class Main
 			System.exit(1) ;
 		}
 
-		// load configurations
+		// (3) load configurations for a movie recommender like data file paths
+		//     and various settings for the movie recommender
 		config(configFilePath) ;
-
+		
+		// (4) from loading data files to training a recommender and testing the recommender.
 		try {
+			// (4-1) Preparing file readers for both training and test data files
 			MovieData data = new MovieData(config) ;
 			FileReader fileReaderForTrainingData = new FileReader(config.getString("data.training")) ;
 			FileReader fileReaderForTestData =  new FileReader(config.getString("data.testing")) ;
 
+			// (4-2) Load the training data
 			if(DEBUG)
 				System.out.println("Training Data loading starts.") ;		
 
@@ -69,16 +75,18 @@ class Main
 			if(DEBUG)
 				System.out.println("Training Data loading finishes.") ;
 
-			// to show charts about the movie data when isToShow is true (default: false)
+			// (4-3) Draw graphical charts from the training data when 'isToShow' options is true.
 			if (isToShow)
 				data.show() ;
+			
+			// (4-4) Remove outliers (Noisy data cleansing by removing unordinary data)
 			data.removeOutliers() ;
 
-			// Create an object for a recommender with our configuration
+			// (4-5) Training a recommender based on the configuration
 			Recommender recommender = new Recommender(config) ;
 			recommender.train(data) ;
 
-			// test recommender on the test data to check its prediction performance.
+			// (4-6) test recommender on the test data to check its prediction performance.
 			test(fileReaderForTestData, recommender) ;
 		}
 		catch (IOException e) {
@@ -93,8 +101,7 @@ class Main
 	 * This is a method to get configuration info from a configuration file (in our program, config.properties)
 	 * 
 	 */
-	public static
-	void config (String fpath) {
+	public static void config (String fpath) {
 		try {
 			config = new PropertiesConfiguration(fpath) ;
 		}
@@ -105,8 +112,7 @@ class Main
 	}
 
 
-	public static
-	void test (FileReader ftest, Recommender rec) throws IOException
+	public static void test (FileReader fileReader, Recommender rec) throws IOException
 	{
 		int [][] error = new int[2][2] ; // actual x predict -> # 	
 
@@ -119,7 +125,7 @@ class Main
 		TreeMap<Integer, HashSet<Integer>> 
 		q_negative = new TreeMap<Integer, HashSet<Integer>>();
 
-		for (CSVRecord r : CSVFormat.newFormat(',').withFirstRecordAsHeader().parse(ftest)) {
+		for (CSVRecord r : CSVFormat.newFormat(',').withFirstRecordAsHeader().parse(fileReader)) {
 			Integer user = Integer.parseInt(r.get(0)) ;
 			Integer movie = Integer.parseInt(r.get(1)) ;
 			Double rating = Double.parseDouble(r.get(2)) ;

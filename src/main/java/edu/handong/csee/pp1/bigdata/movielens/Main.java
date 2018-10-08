@@ -62,7 +62,7 @@ class Main
 		// (4) from loading data files to training a recommender and testing the recommender.
 		try {
 			// (4-1) Preparing file readers for both training and test data files
-			MovieData data = new MovieData(config) ;
+			MovieData trainingData = new MovieData(config) ;
 			FileReader fileReaderForTrainingData = new FileReader(config.getString("data.training")) ;
 			FileReader fileReaderForTestData =  new FileReader(config.getString("data.testing")) ;
 
@@ -70,21 +70,21 @@ class Main
 			if(DEBUG)
 				System.out.println("Training Data loading starts.") ;		
 
-			data.load(fileReaderForTrainingData) ;
+			trainingData.load(fileReaderForTrainingData) ;
 
 			if(DEBUG)
 				System.out.println("Training Data loading finishes.") ;
 
 			// (4-3) Draw graphical charts from the training data when 'isToShow' options is true.
 			if (isToShow)
-				data.show() ;
+				trainingData.show() ;
 			
 			// (4-4) Remove outliers (Noisy data cleansing by removing unordinary data)
-			data.removeOutliers() ;
+			trainingData.removeOutliers() ;
 
 			// (4-5) Training a recommender based on the configuration
 			Recommender recommender = new Recommender(config) ;
-			recommender.train(data) ;
+			recommender.train(trainingData) ;
 
 			// (4-6) test recommender on the test data to check its prediction performance.
 			test(fileReaderForTestData, recommender) ;

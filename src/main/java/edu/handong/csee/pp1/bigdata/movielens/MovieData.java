@@ -6,8 +6,7 @@ import java.util.* ;
 import org.apache.commons.csv.* ;
 import org.apache.commons.configuration.* ;
 
-public 
-class MovieData 
+public class MovieData 
 {
 	TreeMap<Integer, HashSet<Integer>>
 	Baskets = new TreeMap<Integer, HashSet<Integer>>() ;
@@ -22,15 +21,13 @@ class MovieData
 	double like_threshold ;
 	int outlier_threshold ;
 
-	public
-	MovieData (PropertiesConfiguration config) {
+	public MovieData (PropertiesConfiguration config) {
 		this.config = config ;
 		this.like_threshold = config.getDouble("data.like_threshold") ;
 		this.outlier_threshold = config.getInt("data.outlier_threshold") ;
 	}
 
-	public 
-	void load (FileReader f) throws IOException {
+	public void load (FileReader f) throws IOException {
 		for (CSVRecord r : CSVFormat.newFormat(',').withFirstRecordAsHeader().parse(f)) {
 			Integer user   = Integer.parseInt(r.get(0)) ;
 			Integer movie  = Integer.parseInt(r.get(1)) ;
@@ -56,8 +53,7 @@ class MovieData
 		}
 	}
 
-	public
-	void removeOutliers() {
+	public void removeOutliers() {
 		HashSet<Integer> outliers = new HashSet<Integer>() ;
 		for (Integer userId : Baskets.keySet()) {
 			HashSet<Integer> basket = Baskets.get(userId) ;
@@ -68,14 +64,12 @@ class MovieData
 			Baskets.remove(userId) ;
 	}
 
-	public 
-	TreeMap<Integer, HashSet<Integer>>
+	public TreeMap<Integer, HashSet<Integer>>
 	getBaskets() {
 		return Baskets ;
 	}
 
-	public
-	void show() {
+	public void show() {
 		ChartGenerator chartGenerator = new ChartGenerator(Baskets, numRatingsOfMovies, accRatingsOfMovies);
 		chartGenerator.showMovieStat() ;
 		chartGenerator.showUserStat() ;

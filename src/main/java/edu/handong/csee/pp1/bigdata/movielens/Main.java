@@ -70,7 +70,7 @@ class Main
 			if(DEBUG)
 				System.out.println("Training Data loading starts.") ;		
 
-			trainingData.load(fileReaderForTrainingData) ;
+			trainingData.load(fileReaderForTrainingData) ; // creating Movie baskets for each user from training data.
 
 			if(DEBUG)
 				System.out.println("Training Data loading finishes.") ;

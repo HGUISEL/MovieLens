@@ -15,7 +15,7 @@ public class MovieData
 	numRatingsOfMovies = new TreeMap<Integer, Integer>() ;
 
 	TreeMap<Integer, Double>
-	accRatingsOfMovies = new TreeMap<Integer, Double>() ;
+	accumulatedRatingsOfMovies = new TreeMap<Integer, Double>() ;
 
 	PropertiesConfiguration config ;
 	double like_threshold ;
@@ -28,26 +28,36 @@ public class MovieData
 	}
 
 	public void load (FileReader f) throws IOException {
+		
+		// Load each instance from a csv file.
 		for (CSVRecord r : CSVFormat.newFormat(',').withFirstRecordAsHeader().parse(f)) {
 			Integer user   = Integer.parseInt(r.get(0)) ;
 			Integer movie  = Integer.parseInt(r.get(1)) ;
 			Double  rating = Double.parseDouble(r.get(2)) ;
 
+			// count ratings and accumulate rating scores by a user
 			if (numRatingsOfMovies.containsKey(movie) == false) {
-				numRatingsOfMovies.put(movie, 1) ;
-				accRatingsOfMovies.put(movie, rating) ;
+				numRatingsOfMovies.put(movie, 1) ; // first rating count
+				accumulatedRatingsOfMovies.put(movie, rating) ;
 			}
 			else {
 				numRatingsOfMovies.put(movie, numRatingsOfMovies.get(movie) + 1) ;
-				accRatingsOfMovies.put(movie, accRatingsOfMovies.get(movie) + rating) ;
+				accumulatedRatingsOfMovies.put(movie, accumulatedRatingsOfMovies.get(movie) + rating) ;
 			}
 
+			// Deal with a good rating based on the like_threshold.
+			// We consider a user likes the movie when he/she rates the movie not less than this score.
+			// If a user likes this movie, put it in the Basket.
 			if (rating >= like_threshold) {
+				
+				// Get the basket of this user.
 				HashSet<Integer> basket = Baskets.get(user) ;
-				if (basket == null) {
+				if (basket == null) { // no Basket for the user? Create one.
 					basket = new HashSet<Integer>() ;
 					Baskets.put(user, basket) ;
 				}
+				
+				// put the movie for the user.
 				basket.add(movie) ;
 			}
 		}
@@ -70,7 +80,7 @@ public class MovieData
 	}
 
 	public void show() {
-		ChartGenerator chartGenerator = new ChartGenerator(Baskets, numRatingsOfMovies, accRatingsOfMovies);
+		ChartGenerator chartGenerator = new ChartGenerator(Baskets, numRatingsOfMovies, accumulatedRatingsOfMovies);
 		chartGenerator.showMovieStat() ;
 		chartGenerator.showUserStat() ;
 		chartGenerator.showRatingStat() ;

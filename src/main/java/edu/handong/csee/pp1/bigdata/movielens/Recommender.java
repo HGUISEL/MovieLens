@@ -40,7 +40,7 @@ Recommender
 	}
 
 	public 
-	void train(ChartGeneratorForMovieData data) {
+	void train(MovieData data) {
 		TreeMap<Integer, HashSet<Integer>> 
 		Baskets = data.getBaskets() ;
 		/* Baskets : UserID -> Set<MovieId> */

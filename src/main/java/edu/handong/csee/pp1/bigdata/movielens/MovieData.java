@@ -17,7 +17,7 @@ import org.jfree.data.xy.XYDataset ;
 import org.jfree.ui.ApplicationFrame ;
 
 public 
-class ChartGeneratorForMovieData 
+class MovieData 
 {
 	TreeMap<Integer, HashSet<Integer>>
 	Baskets = new TreeMap<Integer, HashSet<Integer>>() ;
@@ -33,7 +33,7 @@ class ChartGeneratorForMovieData
 	int outlier_threshold ;
 
 	public
-	ChartGeneratorForMovieData (PropertiesConfiguration config) {
+	MovieData (PropertiesConfiguration config) {
 		this.config = config ;
 		this.like_threshold = config.getDouble("data.like_threshold") ;
 		this.outlier_threshold = config.getInt("data.outlier_threshold") ;

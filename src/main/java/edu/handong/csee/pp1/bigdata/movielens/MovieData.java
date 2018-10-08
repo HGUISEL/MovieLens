@@ -2,19 +2,9 @@ package edu.handong.csee.pp1.bigdata.movielens ;
 
 import java.io.* ;
 import java.util.* ;
-import java.awt.* ;
-import javax.swing.* ;
 
 import org.apache.commons.csv.* ;
 import org.apache.commons.configuration.* ;
-
-import org.jfree.chart.* ;
-import org.jfree.chart.plot.* ;
-import org.jfree.chart.renderer.xy.XYDotRenderer ;
-import org.jfree.data.* ;
-import org.jfree.data.statistics.* ;
-import org.jfree.data.xy.XYDataset ;
-import org.jfree.ui.ApplicationFrame ;
 
 public 
 class MovieData 

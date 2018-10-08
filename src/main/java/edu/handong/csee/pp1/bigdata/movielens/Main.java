@@ -58,16 +58,16 @@ class Main
 
 		try {
 			MovieData data = new MovieData(config) ;
-			FileReader ftrain = new FileReader(config.getString("data.training")) ;
-			FileReader ftest =  new FileReader(config.getString("data.testing")) ;
+			FileReader fileReaderForTrainingData = new FileReader(config.getString("data.training")) ;
+			FileReader fileReaderForTestData =  new FileReader(config.getString("data.testing")) ;
 
 			if(DEBUG)
-				System.out.println("Data loading starts.") ;		
+				System.out.println("Training Data loading starts.") ;		
 
-			data.load(ftrain) ;
+			data.load(fileReaderForTrainingData) ;
 
 			if(DEBUG)
-				System.out.println("Data loading finishes.") ;
+				System.out.println("Training Data loading finishes.") ;
 
 			// to show charts about the movie data when isToShow is true (default: false)
 			if (isToShow)
@@ -79,7 +79,7 @@ class Main
 			recommender.train(data) ;
 
 			// test recommender on the test data to check its prediction performance.
-			test(ftest, recommender) ;
+			test(fileReaderForTestData, recommender) ;
 		}
 		catch (IOException e) {
 			System.err.println(e) ;

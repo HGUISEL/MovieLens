@@ -1,6 +1,5 @@
 package edu.handong.csee.pp1.bigdata.movielens ;
 
-import java.io.* ;
 import java.util.* ;
 import com.google.common.collect.* ;
 import org.apache.commons.configuration.* ;

@@ -34,13 +34,13 @@ class Main
 		CommandLine cmd = null ; // An object of the CommandLine class is actually processing command line options.
 		try {
 			cmd = parser.parse(options, args) ; // parse method parse all options from a command line.
-			
+
 			// parsed options now will be set to corresponding variables to use them in our code.
 			if (cmd.hasOption("d"))
 				isToShow = true ;
 			if (cmd.hasOption("c"))
 				configFilePath = cmd.getOptionValue("c") ;
-			
+
 			// 'h' option generates help messages automatically.
 			if (cmd.hasOption("h")) {
 				HelpFormatter formater = new HelpFormatter() ;
@@ -61,28 +61,32 @@ class Main
 			FileReader ftrain = new FileReader(config.getString("data.training")) ;
 			FileReader ftest =  new FileReader(config.getString("data.testing")) ;
 
-			if(DEBUG) System.out.println("Data loading starts.") ;		
-			data.load(ftrain) ;
-			if(DEBUG) System.out.println("Data loading finishes.") ;
+			if(DEBUG)
+				System.out.println("Data loading starts.") ;		
 
-			// show charts about the movie data when isToShow is true (default: false)
+			data.load(ftrain) ;
+
+			if(DEBUG)
+				System.out.println("Data loading finishes.") ;
+
+			// to show charts about the movie data when isToShow is true (default: false)
 			if (isToShow)
 				data.show() ;
 			data.removeOutliers() ;
 
 			// Create an object for a recommender with our configuration
-			Recommender rec = new Recommender(config) ;
-			rec.train(data) ;
+			Recommender recommender = new Recommender(config) ;
+			recommender.train(data) ;
 
-			test(ftest, rec) ;
+			// test recommender on the test data to check its prediction performance.
+			test(ftest, recommender) ;
 		}
 		catch (IOException e) {
 			System.err.println(e) ;
 			System.exit(1) ;
 		}
 	}
-	
-	
+
 	/**
 	 * @param fpath
 	 * 
@@ -141,10 +145,10 @@ class Main
 
 		for (Integer u : users.keySet()) {
 			HashSet<Integer> u_movies = users.get(u) ;
-			
+
 			for (Integer q : q_positive.get(u))
 				error[1][rec.predict(u_movies, q)] += 1 ;
-	
+
 			for (Integer q : q_negative.get(u))
 				error[0][rec.predict(u_movies, q)] += 1 ;
 		}
@@ -153,32 +157,32 @@ class Main
 			if(INFO)
 				System.out.println("Precision: " +
 						String.format("%.3f", 
-					(double)(error[1][1]) / (double)(error[0][1] + error[1][1]))) ;
-		else
-			if(INFO)
-				System.out.println("Precision: undefined.") ;
+								(double)(error[1][1]) / (double)(error[0][1] + error[1][1]))) ;
+			else
+				if(INFO)
+					System.out.println("Precision: undefined.") ;
 
 		if (error[1][0] + error[1][1] > 0)
 			if(INFO)
 				System.out.println("Recall: " +
-			  String.format("%.3f", 
-				((double)(error[1][1]) / (double)(error[1][0] + error[1][1])))) ;
-		else
-			if(INFO)
-				System.out.println("Recall: undefined.") ;
+						String.format("%.3f", 
+								((double)(error[1][1]) / (double)(error[1][0] + error[1][1])))) ;
+			else
+				if(INFO)
+					System.out.println("Recall: undefined.") ;
 
 		if (error[0][0] + error[1][1] > 0)
 			if(INFO)
 				System.out.println("All case accuracy: " +
-			  String.format("%.3f", 
-				((double)(error[1][1] + error[0][0]) / 
-				(double)(error[0][0] + error[0][1] + error[1][0] + error[1][1])))) ;
-		else
-			if(INFO)
-				System.out.println("All case accuracy: undefined.") ;
+						String.format("%.3f", 
+								((double)(error[1][1] + error[0][0]) / 
+										(double)(error[0][0] + error[0][1] + error[1][0] + error[1][1])))) ;
+			else
+				if(INFO)
+					System.out.println("All case accuracy: undefined.") ;
 
 		if(INFO)
 			System.out.println("[[" + error[0][0] + ", " + error[0][1] + "], "  + 
-			"[" + error[1][0] + ", " + error[1][1] + "]]") ;
+					"[" + error[1][0] + ", " + error[1][1] + "]]") ;
 	}
 }

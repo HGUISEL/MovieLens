@@ -86,66 +86,9 @@ class MovieData
 
 	public
 	void show() {
-		showMovieStat() ;
-		showUserStat() ;
-		showRatingStat() ;
-	}
-
-
-
-	private
-	void showMovieStat() {
-		ApplicationFrame frame = new ApplicationFrame("Movie Stat.") ;
-
-		XYDataset dataset = getNumAvgRatingDataset() ;
-		JFreeChart chart = ChartFactory.createScatterPlot("Num vs. Avg Rating", "Num", "Avg Rating", 
-			dataset, PlotOrientation.VERTICAL, true, true, false) ;
-		XYPlot plot = (XYPlot) chart.getPlot() ;
-		XYDotRenderer renderer = new XYDotRenderer() ;
-		renderer.setDotWidth(2) ;
-		renderer.setDotHeight(2) ;
-		plot.setRenderer(renderer) ;
-		JPanel panel = new ChartPanel(chart) ;
-		panel.setPreferredSize(new java.awt.Dimension(500, 270)) ;
-
-		frame.setContentPane(panel) ;
-		frame.pack() ;
-		frame.setVisible(true) ;
-	}
-
-	private
-	XYDataset getNumAvgRatingDataset() {
-		return (XYDataset) new NumAvgDataset(numRatingsOfMovies, accRatingsOfMovies) ;
-	}
-
-	private
-	void showUserStat() {
-		ApplicationFrame frame = new ApplicationFrame("User Stat.") ;
-
-		double [] ratings = new double[Baskets.keySet().size()] ;
-
-		int i = 0 ;
-		for (Integer user : Baskets.keySet()) {
-			ratings[i] = (double) Baskets.get(user).size() ;
-			i++ ;
-		}
-
-		HistogramDataset dataset = new HistogramDataset() ;
-		dataset.setType(HistogramType.RELATIVE_FREQUENCY) ;
-		dataset.addSeries("Histogram", ratings, 20) ;
-		JFreeChart chart = ChartFactory.createHistogram("Num. Ratings by Users",
-			"Num", "value", dataset, PlotOrientation.VERTICAL, false, false, false) ;
-		JPanel panel = new ChartPanel(chart) ;
-		frame.setContentPane(panel) ;
-		frame.pack() ;
-		frame.setVisible(true) ;
-	}
-
-	private
-	void showRatingStat() {
-		/* TODO: 
-			implement this method to draw a histogram 
-			that shows the distribution of ratings (1.0~5.0) 
-		*/
+		ChartGenerator chartGenerator = new ChartGenerator(Baskets, numRatingsOfMovies, accRatingsOfMovies);
+		chartGenerator.showMovieStat() ;
+		chartGenerator.showUserStat() ;
+		chartGenerator.showRatingStat() ;
 	}
 }

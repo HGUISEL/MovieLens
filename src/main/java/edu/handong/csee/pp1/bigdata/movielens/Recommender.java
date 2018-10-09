@@ -8,18 +8,18 @@ public class
 Recommender
 {
 	TreeMap<Integer, Integer> countForAllItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; // first item, second count
-	TreeMap<ItemSetWithSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<ItemSetWithSize2, Integer>() ; // first item, second count
+	TreeMap<AssociationRuleSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<AssociationRuleSize2, Integer>() ; // first item, second count
 	
 	TreeMap<Integer, Integer> 
 	freqItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; 
 	/* support1 : MovieId -> Num */
 
-	TreeMap<ItemSetWithSize2, Integer> 
-	freqItemsetsWithSize2 = new TreeMap<ItemSetWithSize2, Integer>() ; 
+	TreeMap<AssociationRuleSize2, Integer> 
+	freqItemsetsWithSize2 = new TreeMap<AssociationRuleSize2, Integer>() ; 
 	/* support2 : MovieId x MovieId -> Num */
 
-	TreeMap<ItemsetWithSize3, Integer> 
-	freqItemsetsWithSize3 = new TreeMap<ItemsetWithSize3, Integer>() ; 
+	TreeMap<AssociationRuleSize3, Integer> 
+	freqItemsetsWithSize3 = new TreeMap<AssociationRuleSize3, Integer>() ; 
 	/* support3 : MovieId x MovieId x MovieId -> Num */
 
 	PropertiesConfiguration config ;
@@ -105,15 +105,15 @@ Recommender
 			// it returns all subsets from the combinations with the given size {{1,2},{1,3},{2,3}}.
 			// Note that the order of items mat not be ordered by item ids but the order is sorted when ItemsetWithSize2 is instantiated.
 			for (Set<Integer> aSubsetWithTwoItems : Sets.combinations(aBasket, 2)) {
-				Integer count = countForAllItemsetsWithSize2.get(new ItemSetWithSize2(aSubsetWithTwoItems)) ;
+				Integer count = countForAllItemsetsWithSize2.get(new AssociationRuleSize2(aSubsetWithTwoItems)) ;
 				if (count == null) 
 					count = 1 ;
 				else
 					count = count.intValue() + 1 ;
-				countForAllItemsetsWithSize2.put(new ItemSetWithSize2(aSubsetWithTwoItems), count) ;
+				countForAllItemsetsWithSize2.put(new AssociationRuleSize2(aSubsetWithTwoItems), count) ;
 			}
 			
-			for(ItemSetWithSize2 itemset:countForAllItemsetsWithSize2.keySet()) {
+			for(AssociationRuleSize2 itemset:countForAllItemsetsWithSize2.keySet()) {
 				
 				if(countForAllItemsetsWithSize2.get(itemset)>=minSupport)
 					freqItemsetsWithSize2.put(itemset, countForAllItemsetsWithSize2.get(itemset));
@@ -144,13 +144,13 @@ Recommender
 			// it returns all subsets from the combinations with the given size {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}.
 			// Note that the order of items mat not be ordered by item ids but the order is sorted when ItemsetWithSize3 is instantiated.
 			for (Set<Integer> aSubsetWithThreeItems : Sets.combinations(aBasket, 3)) {
-				Integer count = freqItemsetsWithSize3.get(new ItemsetWithSize3(aSubsetWithThreeItems));
+				Integer count = freqItemsetsWithSize3.get(new AssociationRuleSize3(aSubsetWithThreeItems));
 				if (count == null) 
 					count = 1 ;
 				else
 					count = count.intValue() + 1 ;
 				
-				freqItemsetsWithSize3.put(new ItemsetWithSize3(aSubsetWithThreeItems), count) ;
+				freqItemsetsWithSize3.put(new AssociationRuleSize3(aSubsetWithThreeItems), count) ;
 			}
 		}
 	}
@@ -176,7 +176,7 @@ Recommender
 		for (Set<Integer> p : Sets.combinations(anItemset, 2)) {
 			
 			// the number baskets for I
-			Integer numBasketsForI = freqItemsetsWithSize2.get(new ItemSetWithSize2(p)) ;
+			Integer numBasketsForI = freqItemsetsWithSize2.get(new AssociationRuleSize2(p)) ;
 			
 			if (numBasketsForI == null)
 				continue ;
@@ -184,7 +184,7 @@ Recommender
 			// the number of baskets for I ⋃ {j}
 			TreeSet<Integer> assocRule = new TreeSet<Integer>(p) ;
 			assocRule.add(j) ;
-			ItemsetWithSize3 item = new ItemsetWithSize3(assocRule) ;	
+			AssociationRuleSize3 item = new AssociationRuleSize3(assocRule) ;	
 			Integer numBasketsForIUnionj = freqItemsetsWithSize3.get(item) ; // All itemsets in freqItemsetsWithSize3 satisfy minimum support when the are computed.
 			if (numBasketsForIUnionj == null)
 				continue ;
@@ -205,15 +205,14 @@ Recommender
 	}	
 }
 
-class 
-ItemSetWithSize2 implements Comparable 
+@SuppressWarnings("rawtypes")
+class AssociationRuleSize2 implements Comparable 
 {
 
 	int first ;
 	int second ;
 
-	public
-	ItemSetWithSize2(int first, int second) {
+	public AssociationRuleSize2(int first, int second) {
 		if (first <= second) {
 			this.first = first ;
 			this.second = second ;
@@ -224,8 +223,7 @@ ItemSetWithSize2 implements Comparable
 		}
 	}
 
-	public
-	ItemSetWithSize2(Set<Integer> s) {
+	public AssociationRuleSize2(Set<Integer> s) {
 		Integer [] elem = s.toArray(new Integer[2]) ;
 		// order item ids!
 		if (elem[0] < elem[1]) {
@@ -238,9 +236,9 @@ ItemSetWithSize2 implements Comparable
 		}
 	}
 
-	public 
-	int compareTo(Object obj) {
-		ItemSetWithSize2 p = (ItemSetWithSize2) obj ;
+	@Override
+	public int compareTo(Object obj) {
+		AssociationRuleSize2 p = (AssociationRuleSize2) obj ;
 
 		if (this.first < p.first) 
 			return -1 ;
@@ -251,12 +249,12 @@ ItemSetWithSize2 implements Comparable
 	}
 }
 
-class 
-ItemsetWithSize3 implements Comparable 
+@SuppressWarnings("rawtypes")
+class AssociationRuleSize3 implements Comparable 
 {
 	int [] elem ;
 
-	ItemsetWithSize3(Set<Integer> s) {
+	AssociationRuleSize3(Set<Integer> s) {
 		/* TODO: implement this method */
 	}
 

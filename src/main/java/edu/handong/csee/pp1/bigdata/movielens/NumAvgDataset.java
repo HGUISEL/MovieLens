@@ -7,6 +7,7 @@ import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.XYDataset;
 import java.util.* ;
 
+@SuppressWarnings("serial")
 public class NumAvgDataset extends AbstractXYDataset 
         implements XYDataset, DomainInfo, RangeInfo {
 
@@ -79,8 +80,8 @@ public class NumAvgDataset extends AbstractXYDataset
 		}
 
 
-        this.domainMin = new Double(0);
-        this.domainMax = new Double(max);
+        this.domainMin = 0.0;
+        this.domainMax = max;
         this.domainRange = new Range(0, max);
 
         this.rangeMin = 0.0 ;
@@ -128,7 +129,8 @@ public class NumAvgDataset extends AbstractXYDataset
      *
      * @return The key for the series.
      */
-    public Comparable getSeriesKey(int series) {
+    @SuppressWarnings("rawtypes")
+	public Comparable getSeriesKey(int series) {
         return "Sample " + series;
     }
 

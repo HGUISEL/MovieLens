@@ -70,8 +70,13 @@ public class MovieData
 			if (basket.size() > outlier_threshold) 
 				outliers.add(userId) ;
 		}
-		for (Integer userId : outliers) 
+		System.out.print("Outlier removed: ");
+		int i=0;
+		for (Integer userId : outliers) {
 			Baskets.remove(userId) ;
+			i++;
+		}
+		System.out.println(i + " users who have a big basket (size > " + outlier_threshold + ") were removed");
 	}
 
 	public TreeMap<Integer, HashSet<Integer>>

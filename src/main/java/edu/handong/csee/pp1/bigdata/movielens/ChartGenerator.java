@@ -87,7 +87,7 @@ public class ChartGenerator {
 
 	public
 	void showRatingStat() {
-		/* TODO: 
+		/* Optional TODO: 
 			implement this method to draw a histogram 
 			that shows the distribution of ratings (1.0~5.0) 
 		*/

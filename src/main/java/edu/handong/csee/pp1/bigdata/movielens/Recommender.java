@@ -4,8 +4,7 @@ import java.util.* ;
 import com.google.common.collect.* ;
 import org.apache.commons.configuration.* ;
 
-public class 
-Recommender
+public class Recommender
 {
 	TreeMap<Integer, Integer> countForAllItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; // first item, second count
 	TreeMap<FrequentItemsetSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<FrequentItemsetSize2, Integer>() ; // first item, second count
@@ -43,8 +42,7 @@ Recommender
 			config.getInt("prediction.min_evidence_3") ;
 	}
 
-	public 
-	void train(MovieData data) {
+	public void train(MovieData data) {
 		TreeMap<Integer, HashSet<Integer>> 
 		baskets = data.getBaskets() ;
 		/* Baskets : UserID -> Set<MovieId> */
@@ -59,16 +57,13 @@ Recommender
 		}
 	}
 
-	public
-	int predict(HashSet<Integer> profile, Integer q) {
+	public int predict(HashSet<Integer> profile, Integer q) {
 		if (predictPair(profile, q) == 1)
 			return 1 ;
 		return predictTriple(profile, q) ;
 	}
 
-
-	private
-	void computeFreqItemsetsWithSize1(HashSet<Integer> aBasket) {
+	private void computeFreqItemsetsWithSize1(HashSet<Integer> aBasket) {
 		
 		for (Integer item : aBasket) {
 			Integer count = countForAllItemsetsWithSize1.get(item) ;
@@ -86,8 +81,7 @@ Recommender
 		}
 	}
 
-	private
-	void computeFreqItemsetsWithSize2(HashSet<Integer> aBasket) {
+	private void computeFreqItemsetsWithSize2(HashSet<Integer> aBasket) {
 		
 		HashSet<Integer> allItemsetsWithSize1ThatSatisfyMinSupportInTheBasket = new HashSet<Integer>() ;
 		for (Integer item : aBasket) {
@@ -123,8 +117,7 @@ Recommender
 		}
 	}
 
-	private
-	void computeFreqItemsetsWithSize3(HashSet<Integer> aBasket) {
+	private void computeFreqItemsetsWithSize3(HashSet<Integer> aBasket) {
 		
 		// Naively using monotonicity to improve efficiency of this algorithm
 		// Based on slides, we could apply monotonicity for itemsets with Size 2 but we did this with Itemsets with Size 1 for simplicity.
@@ -157,16 +150,14 @@ Recommender
 		}
 	}
 
-	private
-	int predictPair(HashSet<Integer> profile, Integer j) {
+	private int predictPair(HashSet<Integer> profile, Integer j) {
 		/* TODO: implement this method */
 		
 		// Compute support, confidence, or lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threshold, otherwise 0.
 		return 0 ;
 	}
 
-	private
-	int predictTriple(HashSet<Integer> anItemset, Integer j) { // association rule anItemset (I) -> j
+	private int predictTriple(HashSet<Integer> anItemset, Integer j) { // association rule anItemset (I) -> j
 		
 		// only consider the case whose itemset size is >=2 since this method deals with {movie 1, movie 2} -> {movie 3} rules
 		if (anItemset.size() < 2)

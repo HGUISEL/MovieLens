@@ -254,14 +254,16 @@ class FrequentItemsetSize2 implements Comparable
 @SuppressWarnings("rawtypes")
 class FrequentItemsetSize3 implements Comparable 
 {
-	int [] elem ;
+	int [] items ;
 
 	FrequentItemsetSize3(Set<Integer> s) {
 		/* TODO: implement this method */
+		
+		// values in s must be sorted and save into items array
 	}
 
-	public 
-	int compareTo(Object obj) {
+	@Override
+	public int compareTo(Object obj) {
 		/* TODO: implement this method */
 		return 0 ;
 	}

@@ -239,7 +239,7 @@ class FrequentItemsetSize2 implements Comparable
 	}
 
 	@Override
-	public int compareTo(Object obj) {
+	public int compareTo(Object obj) { // this method is used for sorting when using TreeMap
 		FrequentItemsetSize2 p = (FrequentItemsetSize2) obj ;
 
 		if (this.first < p.first) 
@@ -263,7 +263,7 @@ class FrequentItemsetSize3 implements Comparable
 	}
 
 	@Override
-	public int compareTo(Object obj) {
+	public int compareTo(Object obj) {  // this method is used for sorting when using TreeMap
 		/* TODO: implement this method */
 		return 0 ;
 	}

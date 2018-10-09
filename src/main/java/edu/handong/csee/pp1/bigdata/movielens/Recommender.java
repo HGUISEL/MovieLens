@@ -181,7 +181,7 @@ Recommender
 			if (numBasketsForI == null)
 				continue ;
 			
-			// the number of baskets for I ⋃ {j}
+			// the number of baskets for I U {j}
 			TreeSet<Integer> assocRule = new TreeSet<Integer>(p) ;
 			assocRule.add(j) ;
 			FrequentItemsetSize3 item = new FrequentItemsetSize3(assocRule) ;	
@@ -191,7 +191,7 @@ Recommender
 
 			// the number baskets for j
 			
-			// compute confidence: The confidence of the rule I -> j is the ratio of the number of baskets for I ⋃ {j} and the number of baskets for I.
+			// compute confidence: The confidence of the rule I -> j is the ratio of the number of baskets for I U {j} and the number of baskets for I.
 			double confidence = (double) numBasketsForIUnionj / numBasketsForI;
 		
 			if (confidence >= confidence_threshold_rulesize_3) 

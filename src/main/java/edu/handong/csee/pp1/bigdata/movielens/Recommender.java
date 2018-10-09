@@ -7,20 +7,22 @@ import org.apache.commons.configuration.* ;
 public class 
 Recommender
 {
+	TreeMap<Integer, Integer> countForAllItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; // first item, second count
+	
 	TreeMap<Integer, Integer> 
-	support1 = new TreeMap<Integer, Integer>() ; 
+	freqItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; 
 	/* support1 : MovieId -> Num */
 
-	TreeMap<IntPair, Integer> 
-	support2 = new TreeMap<IntPair, Integer>() ; 
+	TreeMap<ItemSetWithSize2, Integer> 
+	freqItemsetsWithSize2 = new TreeMap<ItemSetWithSize2, Integer>() ; 
 	/* support2 : MovieId x MovieId -> Num */
 
-	TreeMap<IntTriple, Integer> 
-	support3 = new TreeMap<IntTriple, Integer>() ; 
+	TreeMap<ItemsetWithSize3, Integer> 
+	freqItemsetsWithSize3 = new TreeMap<ItemsetWithSize3, Integer>() ; 
 	/* support3 : MovieId x MovieId x MovieId -> Num */
 
 	PropertiesConfiguration config ;
-	int min_supports ;
+	int minSupport ;
 	int min_evidence_3 ;
 	double threshold_2 ;
 	double threshold_3 ;
@@ -28,7 +30,7 @@ Recommender
 
 	Recommender(PropertiesConfiguration config) {
 		this.config = config ;
-		this.min_supports = 
+		this.minSupport = 
 			config.getInt("training.min_supports") ;
 		this.threshold_2 = 
 			config.getDouble("prediction.threshold_2") ;
@@ -41,15 +43,16 @@ Recommender
 	public 
 	void train(MovieData data) {
 		TreeMap<Integer, HashSet<Integer>> 
-		Baskets = data.getBaskets() ;
+		baskets = data.getBaskets() ;
 		/* Baskets : UserID -> Set<MovieId> */
 
-		for (Integer user : Baskets.keySet()) {
-			HashSet<Integer> Basket = Baskets.get(user) ;
+		for (Integer user : baskets.keySet()) {
+			HashSet<Integer> aBasket = baskets.get(user) ;
 
-			updateSupport1(Basket) ;
-			updateSupport2(Basket) ;
-			updateSupport3(Basket) ;
+			computeFreqItemsetsWithSize1(aBasket) ;
+			computeFreqItemsetsWithSize2(aBasket) ;
+			computeFreqItemsetsWithSize3(aBasket) ;
+			// Optional TODO: can you do this for Size K???
 		}
 	}
 
@@ -62,49 +65,91 @@ Recommender
 
 
 	private
-	void updateSupport1(HashSet<Integer> Basket) {
-		for (Integer item : Basket) {
-			Integer c = support1.get(item) ;
-			if (c == null)
-				c = new Integer(1) ;
+	void computeFreqItemsetsWithSize1(HashSet<Integer> aBasket) {
+		
+		for (Integer item : aBasket) {
+			Integer count = countForAllItemsetsWithSize1.get(item) ;
+			if (count == null)
+				count = 1 ;
 			else
-				c = new Integer(c.intValue() + 1 ) ;
-			support1.put(item, c) ;
+				count = count.intValue() + 1 ;
+			countForAllItemsetsWithSize1.put(item, count) ; // the item is updated with new count.
+		}
+		
+		for(Integer item:countForAllItemsetsWithSize1.keySet()) {
+			
+			if(countForAllItemsetsWithSize1.get(item)>=minSupport)
+				freqItemsetsWithSize1.put(item, countForAllItemsetsWithSize1.get(item));
 		}
 	}
 
 	private
-	void updateSupport2(HashSet<Integer> Basket) {
-		if (Basket.size() >= 2) {
-			for (Set<Integer> pair : Sets.combinations(Basket, 2)) {
-				Integer c = support2.get(new IntPair(pair)) ;
-				if (c == null) 
-					c = new Integer(1) ;
+	void computeFreqItemsetsWithSize2(HashSet<Integer> aBasket) {
+		
+		HashSet<Integer> allItemsetsWithSize1ThatSatisfyMinSupportInTheBasket = new HashSet<Integer>() ;
+		for (Integer item : aBasket) {
+			// We only need to consider items in the frequent itemsets with Size 1. => Using monotonicity to improve this algorithm
+			if (freqItemsetsWithSize1.containsKey(item))
+				allItemsetsWithSize1ThatSatisfyMinSupportInTheBasket.add(item) ;
+		}
+		
+		aBasket = allItemsetsWithSize1ThatSatisfyMinSupportInTheBasket;
+		
+		// it is obvious that aBasket must have at least two items for computing its frequency.
+		if (aBasket.size() >= 2) {
+			
+			TreeMap<ItemSetWithSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<ItemSetWithSize2, Integer>() ; // first item, second count
+			
+			// Sets.combinations is a public method from a google's common collection package.
+			// this method returns all combinations of elements of a specific size (the second parameter).
+			// for example, when we have the first parameter value {1,2,3} and the value of the second parameter '2',
+			// it returns all subsets from the combinations with the given size {{1,2},{1,3},{2,3}}.
+			for (Set<Integer> aSubsetWithTwoItems : Sets.combinations(aBasket, 2)) {
+				Integer count = countForAllItemsetsWithSize2.get(new ItemSetWithSize2(aSubsetWithTwoItems)) ;
+				if (count == null) 
+					count = 1 ;
 				else
-					c = new Integer(c.intValue() + 1) ;
-				support2.put(new IntPair(pair), c) ;
+					count = count.intValue() + 1 ;
+				countForAllItemsetsWithSize2.put(new ItemSetWithSize2(aSubsetWithTwoItems), count) ;
+			}
+			
+			for(ItemSetWithSize2 itemset:countForAllItemsetsWithSize2.keySet()) {
+				
+				if(countForAllItemsetsWithSize2.get(itemset)>=minSupport)
+					freqItemsetsWithSize2.put(itemset, countForAllItemsetsWithSize2.get(itemset));
 			}
 		}
 	}
 
 	private
-	void updateSupport3(HashSet<Integer> Basket) {
-		HashSet<Integer> 
-		_Basket = new HashSet<Integer>() ;
-		for (Integer elem : Basket) {
-			if (support1.get(elem) >= min_supports)
-				_Basket.add(elem) ;
+	void computeFreqItemsetsWithSize3(HashSet<Integer> aBasket) {
+		
+		// Naively using monotonicity to improve efficiency of this algorithm
+		// Based on slides, we could apply monotonicity for itemsets with Size 2 but we did this with Itemsets with Size 1 for simplicity.
+		// Optional TODO: you can update this part with itemsets with Size 2.
+		HashSet<Integer> allItemsThatSatisfyMinSupportInTheBasket = new HashSet<Integer>() ;
+		for (Integer item : aBasket) {
+			// We do not need to count size 1 items whose frequency is less than minimum support. => Using monotonicity to improve this algorithm
+			if (freqItemsetsWithSize1.containsKey(item))
+				allItemsThatSatisfyMinSupportInTheBasket.add(item) ;
 		}
-		Basket = _Basket ;
+		
+		aBasket = allItemsThatSatisfyMinSupportInTheBasket ;
 
-		if (Basket.size() >= 3) {
-			for (Set<Integer> triple : Sets.combinations(Basket, 3)) {
-				Integer c = support3.get(new IntTriple(triple));
-				if (c == null) 
-					c = new Integer(1) ;
+		// it is obvious that aBasket must have at least three items for computing its frequency.
+		if (aBasket.size() >= 3) {
+			// Sets.combinations is a public method from a google's common collection package.
+			// this method returns all combinations of elements of a specific size (the second parameter).
+			// for example, when we have the first parameter value {1,2,3,4} and the value of the second parameter '2',
+			// it returns all subsets from the combinations with the given size {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}.
+			for (Set<Integer> aSubsetWithThreeItems : Sets.combinations(aBasket, 3)) {
+				Integer count = freqItemsetsWithSize3.get(new ItemsetWithSize3(aSubsetWithThreeItems));
+				if (count == null) 
+					count = 1 ;
 				else
-					c = new Integer(c.intValue() + 1) ;
-				support3.put(new IntTriple(triple), c) ;
+					count = count.intValue() + 1 ;
+				
+				freqItemsetsWithSize3.put(new ItemsetWithSize3(aSubsetWithThreeItems), count) ;
 			}
 		}
 	}
@@ -122,18 +167,18 @@ Recommender
 
 		int evidence = 0 ;
 		for (Set<Integer> p : Sets.combinations(profile, 2)) {
-			Integer den = support2.get(new IntPair(p)) ;
+			Integer den = freqItemsetsWithSize2.get(new ItemSetWithSize2(p)) ;
 			if (den == null)
 				continue ;
 
 			TreeSet<Integer> t = new TreeSet<Integer>(p) ;
 			t.add(q) ;
-			IntTriple item = new IntTriple(t) ;			
-			Integer num = support3.get(item) ;
+			ItemsetWithSize3 item = new ItemsetWithSize3(t) ;			
+			Integer num = freqItemsetsWithSize3.get(item) ;
 			if (num == null)
 				continue ;
 
-			if (num.intValue() < min_supports)
+			if (num.intValue() < minSupport)
 				continue ;
 
 			if ((double)num / (double)den >= threshold_3) 
@@ -148,13 +193,14 @@ Recommender
 }
 
 class 
-IntPair implements Comparable 
+ItemSetWithSize2 implements Comparable 
 {
+
 	int first ;
 	int second ;
 
 	public
-	IntPair(int first, int second) {
+	ItemSetWithSize2(int first, int second) {
 		if (first <= second) {
 			this.first = first ;
 			this.second = second ;
@@ -166,7 +212,7 @@ IntPair implements Comparable
 	}
 
 	public
-	IntPair(Set<Integer> s) {
+	ItemSetWithSize2(Set<Integer> s) {
 		Integer [] elem = s.toArray(new Integer[2]) ;
 		if (elem[0] < elem[1]) {
 			this.first = elem[0] ;
@@ -180,7 +226,7 @@ IntPair implements Comparable
 
 	public 
 	int compareTo(Object obj) {
-		IntPair p = (IntPair) obj ;
+		ItemSetWithSize2 p = (ItemSetWithSize2) obj ;
 
 		if (this.first < p.first) 
 			return -1 ;
@@ -189,14 +235,24 @@ IntPair implements Comparable
 
 		return (this.second - p.second) ;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof ItemSetWithSize2) {
+			ItemSetWithSize2 other = (ItemSetWithSize2) obj;
+			return (this.first == other.first && this.second == other.second) || (this.first == other.second && this.second == other.first) ;
+		}
+		
+		return false;
+	}
 }
 
 class 
-IntTriple implements Comparable 
+ItemsetWithSize3 implements Comparable 
 {
 	int [] elem ;
 
-	IntTriple(Set<Integer> s) {
+	ItemsetWithSize3(Set<Integer> s) {
 		/* TODO: implement this method */
 	}
 

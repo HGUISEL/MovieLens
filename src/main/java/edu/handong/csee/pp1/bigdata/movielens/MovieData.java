@@ -46,8 +46,8 @@ public class MovieData
 			}
 
 			// Deal with a good rating based on the like_threshold.
-			// We consider a user likes the movie when he/she rates the movie not less than this score.
-			// If a user likes this movie, put it in the Basket.
+			// We consider that a user likes the movie when he/she rates the movie not less than this score.
+			// If a user likes this movie, put it in the Basket for getting association rules
 			if (rating >= like_threshold) {
 				
 				// Get the basket of this user.

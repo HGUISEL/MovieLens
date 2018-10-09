@@ -114,7 +114,7 @@ class Main
 
 	public static void test (FileReader fileReader, Recommender rec) throws IOException
 	{
-		int [][] error = new int[2][2] ; // actual x predict -> # 	
+		int [][] confusionMatrix = new int[2][2] ; // actual x predict -> # 	
 
 		TreeMap<Integer, HashSet<Integer>> 
 		users = new TreeMap<Integer, HashSet<Integer>>();
@@ -137,58 +137,68 @@ class Main
 				q_negative.put(user, new HashSet<Integer>()) ;
 			}
 
+			// users will have a list of movies of each user whose type is c.
 			if (type.equals("c")) {
 				if (rating >= config.getDouble("data.like_threshold"))
 					users.get(user).add(movie) ;								
 			}
 			else /* r.get(3) is "q" */{
+				// q_positive will have a list movies liked by each user
 				if (rating >= config.getDouble("data.like_threshold"))
 					q_positive.get(user).add(movie) ;
+				// q_negative will have a list movies not liked by each user
 				else
 					q_negative.get(user).add(movie) ;
 			}
 		}
 
 		for (Integer u : users.keySet()) {
-			HashSet<Integer> u_movies = users.get(u) ;
+			HashSet<Integer> u_movies = users.get(u) ; // a list of movies liked by a user whose user id is u.
 
 			for (Integer q : q_positive.get(u))
-				error[1][rec.predict(u_movies, q)] += 1 ;
+				confusionMatrix[1][rec.predict(u_movies, q)] += 1 ; // when a user liked a list of movies, then the user will like the movie q??
 
 			for (Integer q : q_negative.get(u))
-				error[0][rec.predict(u_movies, q)] += 1 ;
+				confusionMatrix[0][rec.predict(u_movies, q)] += 1 ;
 		}
 
-		if (error[0][1] + error[1][1] > 0)
+		if (confusionMatrix[0][1] + confusionMatrix[1][1] > 0)
 			if(INFO)
 				System.out.println("Precision: " +
 						String.format("%.3f", 
-								(double)(error[1][1]) / (double)(error[0][1] + error[1][1]))) ;
+								(double)(confusionMatrix[1][1]) / (double)(confusionMatrix[0][1] + confusionMatrix[1][1]))) ; // TP / (FP + TP)
 			else
 				if(INFO)
 					System.out.println("Precision: undefined.") ;
 
-		if (error[1][0] + error[1][1] > 0)
+		if (confusionMatrix[1][0] + confusionMatrix[1][1] > 0)
 			if(INFO)
 				System.out.println("Recall: " +
 						String.format("%.3f", 
-								((double)(error[1][1]) / (double)(error[1][0] + error[1][1])))) ;
+								((double)(confusionMatrix[1][1]) / (double)(confusionMatrix[1][0] + confusionMatrix[1][1])))) ; // TP / (FN + TP)
 			else
 				if(INFO)
 					System.out.println("Recall: undefined.") ;
 
-		if (error[0][0] + error[1][1] > 0)
+		if (confusionMatrix[0][0] + confusionMatrix[1][1] > 0)
 			if(INFO)
+				// accuracy = (TP + TN) / (TP + FP + FN + TN)
 				System.out.println("All case accuracy: " +
 						String.format("%.3f", 
-								((double)(error[1][1] + error[0][0]) / 
-										(double)(error[0][0] + error[0][1] + error[1][0] + error[1][1])))) ;
+								((double)(confusionMatrix[1][1] + confusionMatrix[0][0]) / 
+										(double)(confusionMatrix[0][0] + confusionMatrix[0][1] + confusionMatrix[1][0] + confusionMatrix[1][1])))) ;
 			else
 				if(INFO)
 					System.out.println("All case accuracy: undefined.") ;
 
-		if(INFO)
-			System.out.println("[[" + error[0][0] + ", " + error[0][1] + "], "  + 
-					"[" + error[1][0] + ", " + error[1][1] + "]]") ;
+		if(INFO) {
+			System.out.println("TP: " + confusionMatrix[1][1]);
+			System.out.println("FP: " + confusionMatrix[0][1]);
+			System.out.println("FN: " + confusionMatrix[1][0]);
+			System.out.println("TN: " + confusionMatrix[0][0]);
+			
+			System.out.println("[[" + confusionMatrix[0][0] + ", " + confusionMatrix[0][1] + "], "  + 
+					"[" + confusionMatrix[1][0] + ", " + confusionMatrix[1][1] + "]]") ;
+		}
 	}
 }

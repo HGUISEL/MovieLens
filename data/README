@@ -7,5 +7,5 @@
  - # Users: 50
  - # Movies: 2003
  - Every movie in the testing dataset is also in the training dataset.
- - Column info: user_id, movie_id, rating, unknown(c|q)
+ - Column info: user_id, movie_id, rating, type(c: confirmed as watched |q: questioned whether it will be liked or not.)
 

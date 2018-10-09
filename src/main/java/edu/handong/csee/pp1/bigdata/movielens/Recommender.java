@@ -10,22 +10,24 @@ Recommender
 	TreeMap<Integer, Integer> countForAllItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; // first item, second count
 	TreeMap<FrequentItemsetSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<FrequentItemsetSize2, Integer>() ; // first item, second count
 	
-	TreeMap<Integer, Integer> 
-	freqItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; 
-	/* support1 : MovieId -> Num */
-
+	// Frequent itemsets with size 1. Key is movie id and value is the number baskets (frequency) for the movie
+	// all itemsets in this map stisfies the minimum support.
+	TreeMap<Integer, Integer> freqItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; 
+	
+	// Frequent itemsets with size 2. Key is two movie ids (set) and value is the number baskets (frequency) for the movie
+	// all itemsets in this map stisfies the minimum support.
 	TreeMap<FrequentItemsetSize2, Integer> 
 	freqItemsetsWithSize2 = new TreeMap<FrequentItemsetSize2, Integer>() ; 
-	/* support2 : MovieId x MovieId -> Num */
-
+	
+	// Frequent itemsets with size 3. Key is three movie ids (set) and value is the number baskets (frequency) for the movie
+	// all itemsets in this map stisfies the minimum support.
 	TreeMap<FrequentItemsetSize3, Integer> 
 	freqItemsetsWithSize3 = new TreeMap<FrequentItemsetSize3, Integer>() ; 
-	/* support3 : MovieId x MovieId x MovieId -> Num */
 
 	PropertiesConfiguration config ;
 	int minSupport ;
 	int min_evidence_3 ;
-	double threshold_2 ;
+	double confidence_threshold_rulesize_2 ;
 	double confidence_threshold_rulesize_3 ;
 
 
@@ -33,7 +35,7 @@ Recommender
 		this.config = config ;
 		this.minSupport = 
 			config.getInt("training.min_supports") ;
-		this.threshold_2 = 
+		this.confidence_threshold_rulesize_2 = 
 			config.getDouble("prediction.confidence_threshold_rulesize_2") ;
 		this.confidence_threshold_rulesize_3 = 
 			config.getDouble("prediction.confidence_threshold_rulesize_3") ;

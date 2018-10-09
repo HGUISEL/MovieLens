@@ -161,7 +161,7 @@ Recommender
 	int predictPair(HashSet<Integer> profile, Integer q) {
 		/* TODO: implement this method */
 		
-		// Compute support, confidence, lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threholds, otherwise 0.
+		// Compute support, confidence, or lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threshold, otherwise 0.
 		return 0 ;
 	}
 
@@ -190,8 +190,6 @@ Recommender
 			Integer numBasketsForIUnionj = freqItemsetsWithSize3.get(item) ; // All itemsets in freqItemsetsWithSize3 satisfy minimum support when the are computed.
 			if (numBasketsForIUnionj == null)
 				continue ;
-
-			// the number baskets for j
 			
 			// compute confidence: The confidence of the rule I -> j is the ratio of the number of baskets for I U {j} and the number of baskets for I.
 			double confidence = (double) numBasketsForIUnionj / numBasketsForI;

@@ -8,6 +8,7 @@ public class
 Recommender
 {
 	TreeMap<Integer, Integer> countForAllItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; // first item, second count
+	TreeMap<ItemSetWithSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<ItemSetWithSize2, Integer>() ; // first item, second count
 	
 	TreeMap<Integer, Integer> 
 	freqItemsetsWithSize1 = new TreeMap<Integer, Integer>() ; 
@@ -25,7 +26,7 @@ Recommender
 	int minSupport ;
 	int min_evidence_3 ;
 	double threshold_2 ;
-	double threshold_3 ;
+	double confidence_threshold_rulesize_3 ;
 
 
 	Recommender(PropertiesConfiguration config) {
@@ -33,9 +34,9 @@ Recommender
 		this.minSupport = 
 			config.getInt("training.min_supports") ;
 		this.threshold_2 = 
-			config.getDouble("prediction.threshold_2") ;
-		this.threshold_3 = 
-			config.getDouble("prediction.threshold_3") ;
+			config.getDouble("prediction.confidence_threshold_rulesize_2") ;
+		this.confidence_threshold_rulesize_3 = 
+			config.getDouble("prediction.confidence_threshold_rulesize_3") ;
 		this.min_evidence_3 = 
 			config.getInt("prediction.min_evidence_3") ;
 	}
@@ -50,8 +51,8 @@ Recommender
 			HashSet<Integer> aBasket = baskets.get(user) ;
 
 			computeFreqItemsetsWithSize1(aBasket) ;
-			computeFreqItemsetsWithSize2(aBasket) ;
-			computeFreqItemsetsWithSize3(aBasket) ;
+			computeFreqItemsetsWithSize2(aBasket) ; // i.e. association rules with size 2
+			computeFreqItemsetsWithSize3(aBasket) ; // i.e., association rules with size 3
 			// Optional TODO: can you do this for Size K???
 		}
 	}
@@ -98,12 +99,11 @@ Recommender
 		// it is obvious that aBasket must have at least two items for computing its frequency.
 		if (aBasket.size() >= 2) {
 			
-			TreeMap<ItemSetWithSize2, Integer> countForAllItemsetsWithSize2 = new TreeMap<ItemSetWithSize2, Integer>() ; // first item, second count
-			
 			// Sets.combinations is a public method from a google's common collection package.
 			// this method returns all combinations of elements of a specific size (the second parameter).
 			// for example, when we have the first parameter value {1,2,3} and the value of the second parameter '2',
 			// it returns all subsets from the combinations with the given size {{1,2},{1,3},{2,3}}.
+			// Note that the order of items mat not be ordered by item ids but the order is sorted when ItemsetWithSize2 is instantiated.
 			for (Set<Integer> aSubsetWithTwoItems : Sets.combinations(aBasket, 2)) {
 				Integer count = countForAllItemsetsWithSize2.get(new ItemSetWithSize2(aSubsetWithTwoItems)) ;
 				if (count == null) 
@@ -142,6 +142,7 @@ Recommender
 			// this method returns all combinations of elements of a specific size (the second parameter).
 			// for example, when we have the first parameter value {1,2,3,4} and the value of the second parameter '2',
 			// it returns all subsets from the combinations with the given size {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}.
+			// Note that the order of items mat not be ordered by item ids but the order is sorted when ItemsetWithSize3 is instantiated.
 			for (Set<Integer> aSubsetWithThreeItems : Sets.combinations(aBasket, 3)) {
 				Integer count = freqItemsetsWithSize3.get(new ItemsetWithSize3(aSubsetWithThreeItems));
 				if (count == null) 
@@ -157,31 +158,43 @@ Recommender
 	private
 	int predictPair(HashSet<Integer> profile, Integer q) {
 		/* TODO: implement this method */
+		
+		// Compute support, confidence, lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threholds, otherwise 0.
 		return 0 ;
 	}
 
 	private
-	int predictTriple(HashSet<Integer> profile, Integer q) {
-		if (profile.size() < 2)
+	int predictTriple(HashSet<Integer> anItemset, Integer j) { // association rule anItemset (I) -> j
+		
+		// only consider the case whose itemset size is >=2 since this method deals with {movie 1, movie 2} -> {movie 3} rules
+		if (anItemset.size() < 2)
 			return 0 ;
 
+		// Compute support, confidence, or lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by thresholds, otherwise 0.
+		// In the current implementation, we considered only confidence.
 		int evidence = 0 ;
-		for (Set<Integer> p : Sets.combinations(profile, 2)) {
-			Integer den = freqItemsetsWithSize2.get(new ItemSetWithSize2(p)) ;
-			if (den == null)
+		for (Set<Integer> p : Sets.combinations(anItemset, 2)) {
+			
+			// the number baskets for I
+			Integer numBasketsForI = freqItemsetsWithSize2.get(new ItemSetWithSize2(p)) ;
+			
+			if (numBasketsForI == null)
+				continue ;
+			
+			// the number of baskets for I ⋃ {j}
+			TreeSet<Integer> assocRule = new TreeSet<Integer>(p) ;
+			assocRule.add(j) ;
+			ItemsetWithSize3 item = new ItemsetWithSize3(assocRule) ;	
+			Integer numBasketsForIUnionj = freqItemsetsWithSize3.get(item) ; // All itemsets in freqItemsetsWithSize3 satisfy minimum support when the are computed.
+			if (numBasketsForIUnionj == null)
 				continue ;
 
-			TreeSet<Integer> t = new TreeSet<Integer>(p) ;
-			t.add(q) ;
-			ItemsetWithSize3 item = new ItemsetWithSize3(t) ;			
-			Integer num = freqItemsetsWithSize3.get(item) ;
-			if (num == null)
-				continue ;
-
-			if (num.intValue() < minSupport)
-				continue ;
-
-			if ((double)num / (double)den >= threshold_3) 
+			// the number baskets for j
+			
+			// compute confidence: The confidence of the rule I -> j is the ratio of the number of baskets for I ⋃ {j} and the number of baskets for I.
+			double confidence = (double) numBasketsForIUnionj / numBasketsForI;
+		
+			if (confidence >= confidence_threshold_rulesize_3) 
 				evidence++ ;
 		}
 
@@ -214,6 +227,7 @@ ItemSetWithSize2 implements Comparable
 	public
 	ItemSetWithSize2(Set<Integer> s) {
 		Integer [] elem = s.toArray(new Integer[2]) ;
+		// order item ids!
 		if (elem[0] < elem[1]) {
 			this.first = elem[0] ;
 			this.second = elem[1] ;
@@ -234,16 +248,6 @@ ItemSetWithSize2 implements Comparable
 			return 1 ;
 
 		return (this.second - p.second) ;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof ItemSetWithSize2) {
-			ItemSetWithSize2 other = (ItemSetWithSize2) obj;
-			return (this.first == other.first && this.second == other.second) || (this.first == other.second && this.second == other.first) ;
-		}
-		
-		return false;
 	}
 }
 

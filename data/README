@@ -1,3 +1,5 @@
+All data is ordered by user_id, and movie_id
+
 # Training dataset: training.csv
  - # Users: 138443
  - # Movies: 8787

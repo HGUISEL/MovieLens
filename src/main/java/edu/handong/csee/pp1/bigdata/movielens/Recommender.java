@@ -158,7 +158,7 @@ Recommender
 	}
 
 	private
-	int predictPair(HashSet<Integer> profile, Integer q) {
+	int predictPair(HashSet<Integer> profile, Integer j) {
 		/* TODO: implement this method */
 		
 		// Compute support, confidence, or lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threshold, otherwise 0.

@@ -57,10 +57,10 @@ public class Recommender
 		}
 	}
 
-	public int predict(HashSet<Integer> profile, Integer q) {
-		if (predictPair(profile, q) == 1)
+	public int predict(HashSet<Integer> anItemset, Integer q) {
+		if (predictPair(anItemset, q) == 1)
 			return 1 ;
-		return predictTriple(profile, q) ;
+		return predictTriple(anItemset, q) ;
 	}
 
 	private void computeFreqItemsetsWithSize1(HashSet<Integer> aBasket) {
@@ -150,7 +150,7 @@ public class Recommender
 		}
 	}
 
-	private int predictPair(HashSet<Integer> profile, Integer j) {
+	private int predictPair(HashSet<Integer> anItemset, Integer j) {
 		/* TODO: implement this method */
 		
 		// Compute support, confidence, or lift. Based on their threshold, decide how to predict. Return 1 when metrics are satisfied by threshold, otherwise 0.
